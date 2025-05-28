@@ -9,7 +9,7 @@ import EventCard from './components/EventCard';
 
   useEffect(() => {
     const fetchEvents = async () => {
-      const res = await fetch(`http://localhost:3000/api/events`);
+      const res = await fetch(`${https://louder-project.onrender.com}/api/events`);
       const data = await res.json();
       setEvents(data);
     };
