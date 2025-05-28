@@ -9,7 +9,7 @@ export default function EventCard({ event }) {
     if (!email) return alert("Please enter your email.");
 
     try {
-      const res = await fetch(`${https://louder-project.onrender.com}/subscribe`, {
+      const res = await fetch(`https://louder-project.onrender.com/subscribe`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, eventLink: event.link }),
