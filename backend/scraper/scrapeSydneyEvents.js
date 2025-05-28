@@ -2,7 +2,11 @@ import puppeteer from "puppeteer";
 
 export async function scrapeSydneyEvents() {
   try {
-    const browser = await puppeteer.launch({ headless: true });
+    const browser = await puppeteer.launch({
+  executablePath: puppeteer.executablePath(), 
+  headless: true,
+  args: ['--no-sandbox', '--disable-setuid-sandbox']
+});
     const page = await browser.newPage();
     await page.goto("https://www.eventbrite.com.au/d/australia--sydney/events/", {
       waitUntil: "networkidle2",
