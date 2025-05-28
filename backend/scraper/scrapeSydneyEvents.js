@@ -1,8 +1,17 @@
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
+import chromium from "chrome-aws-lambda";
 
 export async function scrapeSydneyEvents() {
+  let browser = null;
   try {
-    const browser = await puppeteer.launch({ headless: true });
+    const executablePath = await chromium.executablePath;
+
+     browser = await puppeteer.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: executablePath,
+      headless: chromium.headless,
+    });
     const page = await browser.newPage();
     await page.goto("https://www.eventbrite.com.au/d/australia--sydney/events/", {
       waitUntil: "networkidle2",
