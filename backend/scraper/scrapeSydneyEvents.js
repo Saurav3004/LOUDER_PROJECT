@@ -1,36 +1,48 @@
 import puppeteer from "puppeteer";
 
 export async function scrapeSydneyEvents() {
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({headless:"new"});
   try {
     const page = await browser.newPage();
     await page.goto("https://www.eventbrite.com.au/d/australia--sydney/events/", {
       waitUntil: "networkidle2",
     });
 
-    // Scroll to trigger lazy loading
+  
     await autoScroll(page);
 
-    const events = await page.evaluate(() => {
-  const containers = document.querySelectorAll("div.Stack_root__1ksk7");
-  let data = [];
+  const events = await page.evaluate(() => {
+  const cards = document.querySelectorAll("section.discover-vertical-event-card");
+  const data = [];
 
-  containers.forEach((container) => {
-    const linkElement = container.querySelector("a.event-card-link");
-    const title = linkElement?.querySelector("h3")?.innerText.trim();
-    const link = linkElement?.href;
+  cards.forEach(card => {
+    
+    const image = card.querySelector("img.event-card-image")?.src || "";
 
-    const paragraphs = container.querySelectorAll("p");
+   
+    const titleAnchor = card.querySelector("section.event-card-details a.event-card-link");
+    const title = titleAnchor?.querySelector("h3")?.innerText.trim() || "";
+    const link = titleAnchor?.href || "";
+
+    
+    const paragraphs = card.querySelectorAll("section.event-card-details p");
     const date = paragraphs[1]?.innerText.trim() || "";
     const location = paragraphs[2]?.innerText.trim() || "";
 
+    
+    const price = card.querySelector("div[class*='priceWrapper'] p")?.innerText.trim() || "";
+
     if (title && link) {
-      data.push({ title, date, location, link });
+      data.push({ title, date, location, price, link, image });
     }
   });
 
   return data;
 });
+
+
+
+
 
     await browser.close();
     return events;
