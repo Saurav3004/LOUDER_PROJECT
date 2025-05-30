@@ -1,7 +1,7 @@
 import puppeteer from "puppeteer";
 
 export async function scrapeSydneyEvents() {
-  const browser = await puppeteer.launch({headless:"new"});
+  const browser = await puppeteer.launch();
   try {
     const page = await browser.newPage();
     await page.goto("https://www.eventbrite.com.au/d/australia--sydney/events/", {

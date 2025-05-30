@@ -1,20 +1,20 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import cors from 'cors';
-import cron from 'node-cron';
-import { scrapeSydneyEvents } from './scraper/scrapeSydneyEvents.js';
-import { Event } from './models/event.js';
-import { Email } from './models/email.js';
-import dotenv from 'dotenv'
+import express from "express";
+import mongoose from "mongoose";
+import cors from "cors";
+import cron from "node-cron";
+import { scrapeSydneyEvents } from "./scraper/scrapeSydneyEvents.js";
+import { Event } from "./models/event.js";
+import { Email } from "./models/email.js";
+import dotenv from "dotenv";
 
 const app = express();
-dotenv.config()
-app.use(cors())
-app.use(express.json())
+dotenv.config();
+app.use(cors());
+app.use(express.json());
 
 mongoose.connect(process.env.MONGO_URI);
 
-mongoose.connection.once('open', async () => {
+mongoose.connection.once("open", async () => {
   console.log("MongoDB connected");
 
   try {
@@ -27,8 +27,7 @@ mongoose.connection.once('open', async () => {
   }
 });
 
-
-app.get('/api/events', async (req, res) => {
+app.get("/api/events", async (req, res) => {
   try {
     const events = await Event.find({});
     res.json(events);
@@ -40,9 +39,19 @@ app.get('/api/events', async (req, res) => {
 app.post("/subscribe", async (req, res) => {
   const { email, eventLink } = req.body;
   if (!email || !eventLink) {
-    return res.status(400).json({ message: "Email and eventLink are required" });
+    return res
+      .status(400)
+      .json({ message: "Email and eventLink are required" });
+  }
+
+  const emailExist = await Email.find({ email });
+  if (emailExist) {
   }
   try {
+    const emailExist = await Email.find({ email });
+    if (emailExist) {
+      res.json({message:"Email subscribed successfully"})
+    }
     await Email.create({ email, eventLink });
     res.json({ message: "Email subscribed successfully" });
   } catch (err) {
@@ -64,8 +73,6 @@ cron.schedule("0 */6 * * *", async () => {
 });
 
 const PORT = process.env.PORT || 4000;
-app.listen(PORT,() => {
-    console.log("server is running ")
-})
-
-
+app.listen(PORT, () => {
+  console.log("server is running ");
+});

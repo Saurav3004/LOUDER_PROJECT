@@ -1,12 +1,19 @@
 // src/components/EventCard.jsx
 import React, { useState } from "react";
+import {z} from 'zod'
 
+const emailSchema = z.string().email("Please enter a valid email address")
 export default function EventCard({ event }) {
   const [email, setEmail] = useState("");
   const [showInput, setShowInput] = useState(false);
 
   const handleSubmit = async () => {
     if (!email) return alert("Please enter your email.");
+    const validation = emailSchema.safeParse(email);
+    if (!validation.success) {
+      alert(validation.error.errors[0].message);
+      return;
+    }
 
     try {
       const res = await fetch(`https://louder-project.onrender.com/subscribe`, {
@@ -22,12 +29,21 @@ export default function EventCard({ event }) {
         alert("Subscription failed. Try again.");
       }
     } catch (err) {
-      alert("Something went wrong.",err);
+      alert("Something went wrong.", err);
     }
   };
 
   return (
     <div className="bg-white rounded-2xl shadow p-4 flex flex-col">
+      {/* Event Image */}
+      {event.image && (
+        <img
+          src={event.image}
+          alt={event.title}
+          className="w-full h-48 object-cover rounded-t-2xl mb-4"
+        />
+      )}
+
       <h2 className="text-xl font-semibold mb-2">{event.title}</h2>
       <p className="text-gray-600">{event.date}</p>
       <p className="text-gray-600 mb-4">{event.location}</p>
