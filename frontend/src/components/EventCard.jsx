@@ -23,7 +23,7 @@ export default function EventCard({ event }) {
 
     try {
       // First subscribe
-      const subRes = await fetch(`http://localhost:3000/subscribe`, {
+      const subRes = await fetch(`https://louder-project.onrender.com/subscribe`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, event: event.link }),
@@ -33,7 +33,7 @@ export default function EventCard({ event }) {
       if (!subData.message) throw new Error("Subscription failed");
 
       // Then send OTP
-      const otpRes = await fetch(`http://localhost:3000/api/send-otp`, {
+      const otpRes = await fetch(`https://louder-project.onrender.com/api/send-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -58,7 +58,7 @@ export default function EventCard({ event }) {
     }
 
     try {
-      const verifyRes = await fetch(`http://localhost:3000/api/verify-otp`, {
+      const verifyRes = await fetch(`https://louder-project.onrender.com/api/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, otp }),
