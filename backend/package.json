@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon index.js"
-    
   },
   "keywords": [],
   "author": "",
@@ -17,6 +16,7 @@
     "express": "^5.1.0",
     "mongoose": "^8.15.1",
     "node-cron": "^4.0.7",
+    "nodemailer": "^7.0.3",
     "puppeteer": "^19.7.2"
   }
 }

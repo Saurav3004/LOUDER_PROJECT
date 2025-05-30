@@ -6,13 +6,17 @@ import { scrapeSydneyEvents } from "./scraper/scrapeSydneyEvents.js";
 import { Event } from "./models/event.js";
 import { Email } from "./models/email.js";
 import dotenv from "dotenv";
+import generateOtp from "./utils/generateOtp.js";
+import { sendEmailOtp } from "./utils/sendEmailotp.js";
 
 const app = express();
 dotenv.config();
 app.use(cors());
 app.use(express.json());
 
+
 mongoose.connect(process.env.MONGO_URI);
+const otpStore = new Map()
 
 mongoose.connection.once("open", async () => {
   console.log("MongoDB connected");
@@ -44,19 +48,44 @@ app.post("/subscribe", async (req, res) => {
       .json({ message: "Email and eventLink are required" });
   }
 
-  const emailExist = await Email.find({ email });
-  if (emailExist) {
-  }
   try {
-    const emailExist = await Email.find({ email });
-    if (emailExist) {
-      res.json({message:"Email subscribed successfully"})
-    }
     await Email.create({ email, eventLink });
     res.json({ message: "Email subscribed successfully" });
   } catch (err) {
     console.error("Error saving subscription:", err);
     res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.post("/api/send-otp", async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ message: "Email is required" });
+
+  const otp = generateOtp();
+  otpStore.set(email, otp);
+
+  try {
+    await sendEmailOtp(email, otp);
+    res.json({ message: "OTP sent successfully" });
+  } catch (error) {
+    console.error("Failed to send OTP:", error);
+    res.status(500).json({ message: "Failed to send OTP" });
+  }
+});
+
+// Verify OTP
+app.post("/api/verify-otp", (req, res) => {
+  const { email, otp } = req.body;
+  if (!email || !otp) {
+    return res.status(400).json({ message: "Email and OTP are required" });
+  }
+
+  const validOtp = otpStore.get(email);
+  if (validOtp === otp) {
+    otpStore.delete(email);
+    res.json({ success:true,message: "OTP verified" });
+  } else {
+    res.status(400).json({ message: "Invalid OTP" });
   }
 });
 
