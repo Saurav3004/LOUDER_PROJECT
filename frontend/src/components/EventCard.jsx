@@ -8,6 +8,7 @@ export default function EventCard({ event }) {
   const [dob, setDob] = useState("");
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState("input"); // "input" | "otp"
+  const [otpError, setOtpError] = useState("");
 
   const handleSendOtp = async () => {
     const validation = emailSchema.safeParse(email);
@@ -41,19 +42,18 @@ export default function EventCard({ event }) {
 
       const otpData = await otpRes.json();
       if (otpData.message) {
-        alert("OTP sent to your email.");
         setStep("otp");
       } else {
         alert("Failed to send OTP.");
       }
     } catch (err) {
-      alert("Something went wrong.",err);
+      alert("Something went wrong. Please try again.");
     }
   };
 
   const handleVerifyOtp = async () => {
     if (!otp) {
-      alert("Please enter OTP.");
+      setOtpError("Please enter OTP.");
       return;
     }
 
@@ -65,14 +65,13 @@ export default function EventCard({ event }) {
       });
 
       const verifyData = await verifyRes.json();
-      console.log(verifyData)
       if (verifyData.success) {
         window.location.href = event.link;
       } else {
-        alert("Invalid OTP.");
+        setOtpError("Invalid OTP.");
       }
     } catch (err) {
-      alert("Verification failed.",err);
+      setOtpError("Verification failed. Please try again.");
     }
   };
 
@@ -100,7 +99,6 @@ export default function EventCard({ event }) {
           />
           <input
             type="date"
-            placeholder="Enter your date of birth"
             className="p-2 border rounded w-full"
             value={dob}
             onChange={(e) => setDob(e.target.value)}
@@ -119,8 +117,14 @@ export default function EventCard({ event }) {
             placeholder="Enter OTP"
             className="p-2 border rounded w-full"
             value={otp}
-            onChange={(e) => setOtp(e.target.value)}
+            onChange={(e) => {
+              setOtp(e.target.value);
+              setOtpError(""); // clear on change
+            }}
           />
+          {otpError && (
+            <p className="text-red-600 text-sm -mt-1">{otpError}</p>
+          )}
           <button
             onClick={handleVerifyOtp}
             className="bg-green-600 text-white px-4 py-2 rounded w-full"
